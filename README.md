@@ -106,7 +106,7 @@ This library provides a lightweight, **fixed-size memory pool** (`MemoryPool`) a
 
 ## License
 
-(Use MIT, Apache 2.0, or whichever license you prefer.)
+MIT
 
 ## Contributing
 
