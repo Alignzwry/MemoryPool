@@ -29,7 +29,7 @@ public:
         {
             // If you never set a pool, fallback to global operator new
             T* p = static_cast<T*>(::operator new(n * sizeof(T)));
-            DBG_PRINT("Allocated from heap (no MemoryPool): " << n * sizeof(T) << " bytes\n");
+            DBG_PRINT("Allocated from heap (no MemoryPool): " << n * sizeof(T) << " bytes");
             return p;
         }
 
@@ -40,11 +40,11 @@ public:
         {
             // Fallback to the global heap if the pool is full
             p = static_cast<T*>(::operator new(n * sizeof(T)));
-            DBG_PRINT("Allocated from heap: " << n * sizeof(T) << " bytes\n");
+            DBG_PRINT("Allocated from heap: " << n * sizeof(T) << " bytes");
         }
         else
         {
-            DBG_PRINT("Allocated from pool: " << n * sizeof(T) << " bytes\n");
+            DBG_PRINT("Allocated from pool: " << n * sizeof(T) << " bytes");
         }
         return p;
     }
@@ -57,7 +57,7 @@ public:
         {
             // If we have no pool, just delete from global
             ::operator delete(p);
-            DBG_PRINT("Deallocated from heap (no MemoryPool): " << n * sizeof(T) << " bytes\n");
+            DBG_PRINT("Deallocated from heap (no MemoryPool): " << n * sizeof(T) << " bytes");
             return;
         }
 
@@ -70,13 +70,13 @@ public:
         {
             // Deallocate from the pool
             pool_->Remove(reinterpret_cast<uint64_t>(p));
-            DBG_PRINT("Deallocated from pool: " << n * sizeof(T) << " bytes\n");
+            DBG_PRINT("Deallocated from pool: " << n * sizeof(T) << " bytes");
         }
         else
         {
             // Otherwise, free from the global heap
             ::operator delete(p);
-            DBG_PRINT("Deallocated from heap: " << n * sizeof(T) << " bytes\n");
+            DBG_PRINT("Deallocated from heap: " << n * sizeof(T) << " bytes");
         }
     }
 
