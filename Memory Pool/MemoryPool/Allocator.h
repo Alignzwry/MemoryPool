@@ -3,7 +3,12 @@
 #include <cstddef>
 #include "MemoryPool.h"
 
-template <typename T, typename pool>
+#define GLOBAL_SIZE 4096
+#define GLOBAL_MAX_COUNT 64
+
+static MemoryPool<GLOBAL_SIZE, GLOBAL_MAX_COUNT> globalPool;
+
+template <typename T, typename pool = MemoryPool<GLOBAL_SIZE, GLOBAL_MAX_COUNT>>
 class Allocator
 {
 public:
@@ -25,16 +30,11 @@ public:
     // Allocate memory for n objects of type T
     T* allocate(std::size_t n)
     {
-        if (!pool_)
-        {
-            // If you never set a pool, fallback to global operator new
-            T* p = static_cast<T*>(::operator new(n * sizeof(T)));
-            DBG_PRINT("Allocated from heap (no MemoryPool): " << n * sizeof(T) << " bytes");
-            return p;
-        }
 
         // Attempt to allocate from our MemoryPool
-        T* p = static_cast<T*>(pool_->FindMemory(static_cast<int>(n * sizeof(T))));
+        T* p = pool_ ?
+            static_cast<T*>(pool_->FindMemory(static_cast<int>(n * sizeof(T)))) :
+            static_cast<T*>(globalPool.FindMemory(static_cast<int>(n * sizeof(T))));
 
         if (!p)
         {
@@ -52,24 +52,17 @@ public:
     // Deallocate memory for n objects
     void deallocate(T* p, std::size_t n) noexcept
     {
-
-        if (!pool_)
-        {
-            // If we have no pool, just delete from global
-            ::operator delete(p);
-            DBG_PRINT("Deallocated from heap (no MemoryPool): " << n * sizeof(T) << " bytes");
-            return;
-        }
-
         // Check if the pointer is within the pool buffer range
-        const char* poolStart = pool_->getBufferStart();
-        const char* poolEnd = pool_->getBufferEnd();
+        const char* poolStart = pool_ ? pool_->getBufferStart() : globalPool.getBufferStart();
+        const char* poolEnd = pool_ ? pool_->getBufferEnd() : globalPool.getBufferEnd();
 
         auto ptrAddress = reinterpret_cast<const char*>(p);
         if (ptrAddress >= poolStart && ptrAddress < poolEnd)
         {
             // Deallocate from the pool
-            pool_->Remove(reinterpret_cast<uint64_t>(p));
+            pool_ ?
+                pool_->Remove(reinterpret_cast<uint64_t>(p)) :
+                globalPool.Remove(reinterpret_cast<uint64_t>(p));
             DBG_PRINT("Deallocated from pool: " << n * sizeof(T) << " bytes");
         }
         else
