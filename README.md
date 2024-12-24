@@ -113,6 +113,3 @@ MIT
 - PRs to enhance or refine the memory pool logic, debugging features, or allocation strategies are welcome.  
 - If you find an issue, open a ticket in the repository.  
 
----
-
-With these steps and an adequately sized memory pool, **you can entirely bypass the global heap** in your application, providing more predictable performance and memory usage profiles.
