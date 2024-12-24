@@ -23,8 +23,6 @@ _ACRTIMP void __cdecl _wassert(
 #define DBG_PRINT(message)
 #endif
 
-// Default configuration for the pool
-
 struct Entry
 {
     int      size = 0;
@@ -35,8 +33,6 @@ template <int Pool_Size, int Max_Entries>
 class MemoryPool
 {
 public:
-
-    // Constructor
     MemoryPool()
     {
         // Not Really Necessary
@@ -136,19 +132,12 @@ public:
         std::memset(entries, 0, sizeof(entries));
     }
 
-    // Provide some accessor so that the Allocator can get the raw buffer start/end
-    // and also call `Remove`.
     const char* getBufferStart() const { return buffer; }
     const char* getBufferEnd()   const { return buffer + Pool_Size; }
 
 private:
-    // The backing buffer that holds the characters
     char   buffer[Pool_Size];
-
-    // Array of 'Entry' structs describing allocated segments
     Entry  entries[Max_Entries];
-
-    // Mutex to protect access to entries[] and buffer
     std::mutex pool_mutex;
 };
 
